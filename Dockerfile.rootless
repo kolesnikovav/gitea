@@ -8,6 +8,8 @@ ARG GITEA_VERSION
 ARG TAGS="sqlite sqlite_unlock_notify"
 ENV TAGS="bindata timetzdata $TAGS"
 ARG CGO_EXTRA_CFLAGS
+ARG UID
+ARG GID
 
 #Build deps
 RUN apk --no-cache add \
@@ -56,13 +58,13 @@ RUN apk --no-cache add \
     && rm -rf /var/cache/apk/*
 
 RUN addgroup \
-    -S -g 1000 \
+    -S -g ${GID} \
     git && \
   adduser \
     -S -H -D \
     -h /var/lib/gitea/git \
     -s /bin/bash \
-    -u 1000 \
+    -u ${UID} \
     -G git \
     git
 
@@ -74,7 +76,7 @@ COPY --from=build-env --chown=root:root /go/src/code.gitea.io/gitea/gitea /app/g
 COPY --from=build-env --chown=root:root /go/src/code.gitea.io/gitea/environment-to-ini /usr/local/bin/environment-to-ini
 
 # git:git
-USER 1000:1000
+USER ${UID}:${GID}
 ENV GITEA_WORK_DIR=/var/lib/gitea
 ENV GITEA_CUSTOM=/var/lib/gitea/custom
 ENV GITEA_TEMP=/tmp/gitea
