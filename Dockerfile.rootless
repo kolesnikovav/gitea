@@ -25,8 +25,9 @@ COPY . ${GOPATH}/src/code.gitea.io/gitea
 WORKDIR ${GOPATH}/src/code.gitea.io/gitea
 
 # Checkout version if set
-RUN if [ -n "${GITEA_VERSION}" ]; then git checkout "${GITEA_VERSION}"; fi \
- && make clean-all build
+#RUN if [ -n "${GITEA_VERSION}" ]; then git checkout "${GITEA_VERSION}"; fi \
+# && make clean-all build
+RUN make clean-all build
 
 # Begin env-to-ini build
 RUN go build contrib/environment-to-ini/environment-to-ini.go
@@ -58,13 +59,13 @@ RUN apk --no-cache add \
     && rm -rf /var/cache/apk/*
 
 RUN addgroup \
-    -S -g ${GID} \
+    -S -g 1001 \
     git && \
   adduser \
     -S -H -D \
     -h /var/lib/gitea/git \
     -s /bin/bash \
-    -u ${UID} \
+    -u 1001 \
     -G git \
     git
 
@@ -76,7 +77,7 @@ COPY --from=build-env --chown=root:root /go/src/code.gitea.io/gitea/gitea /app/g
 COPY --from=build-env --chown=root:root /go/src/code.gitea.io/gitea/environment-to-ini /usr/local/bin/environment-to-ini
 
 # git:git
-USER ${UID}:${GID}
+USER 1001:1001
 ENV GITEA_WORK_DIR=/var/lib/gitea
 ENV GITEA_CUSTOM=/var/lib/gitea/custom
 ENV GITEA_TEMP=/tmp/gitea
