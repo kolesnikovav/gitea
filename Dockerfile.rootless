@@ -23,11 +23,13 @@ WORKDIR ${GOPATH}/src/code.gitea.io/gitea
 COPY --exclude=.git/ . .
 
 # Build gitea, .git mount is required for version data
-RUN --mount=type=cache,target=/go/pkg/mod \
-    --mount=type=cache,target="/root/.cache/go-build" \
-    --mount=type=cache,target=/root/.local/share/pnpm/store \
-    --mount=type=bind,source=".git/",target=".git/" \
-    make
+# RUN --mount=type=cache,target=/go/pkg/mod \
+#     --mount=type=cache,target="/root/.cache/go-build" \
+#     --mount=type=cache,target=/root/.local/share/pnpm/store \
+#     --mount=type=bind,source=".git/",target=".git/" \
+#     make
+# Checkout version if set
+RUN make clean-all build
 
 COPY docker/rootless /tmp/local
 
